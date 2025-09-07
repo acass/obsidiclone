@@ -69,11 +69,19 @@ Content area switches between:
 - `flutter_lints: ^5.0.0` - Linting rules
 
 ### Theming
-Uses dark theme with red accent colors:
-- Background: #1a1a1a
-- Surface: #2a2a2a
-- Dividers: #404040
-- Primary: Red/RedAccent
+Supports light and dark themes with red as the **primary color**.
+
+**Dark Theme**
+- Background: `#1a1a1a`
+- Surface: `#2a2a2a`
+- Divider: `#404040`
+- Primary: `#ff3b30` (Red / RedAccent)
+
+**Light Theme**
+- Background: `#ffffff`
+- Surface: `#f5f5f5`
+- Divider: `#d0d0d0`
+- Primary: `#d32f2f` (Red)
 
 ### Export Functionality
 Supports multiple export formats:
