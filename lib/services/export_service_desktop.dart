@@ -102,7 +102,7 @@ class ExportService {
       try {
         await tempDir.delete(recursive: true);
       } catch (e) {
-        print('Warning: Could not clean up temp directory: $e');
+        // Warning: Could not clean up temp directory: $e
       }
       
       final zipEncoder = ZipEncoder();
@@ -116,14 +116,14 @@ class ExportService {
         if (selectedDirectory != null) {
           final zipFile = File('$selectedDirectory/notes_collection.zip');
           await zipFile.writeAsBytes(Uint8List.fromList(zipData));
-          print('Notes exported and zipped to: ${zipFile.path}');
-          print('Exported ${notes.length} notes with ${copiedMediaFiles.length} media files');
+          // Notes exported and zipped to: ${zipFile.path}
+          // Exported ${notes.length} notes with ${copiedMediaFiles.length} media files
         } else {
-          print('Export cancelled by user');
+          // Export cancelled by user
         }
       }
     } catch (e) {
-      print('Error exporting and zipping notes: $e');
+      // Error exporting and zipping notes: $e
     }
   }
 
@@ -209,11 +209,11 @@ class ExportService {
           // Try to copy to app's media directory
           try {
             await sourceFile.copy(destFile.path);
-            print('Moved media file to app directory: ${destFile.path}');
+            // Moved media file to app directory: ${destFile.path}
             return destFile.path;
           } catch (copyError) {
-            print('Could not copy $filePath to app directory: $copyError');
-            print('Suggestion: Move your media files to Documents or Downloads folder');
+            // Could not copy $filePath to app directory: $copyError
+            // Suggestion: Move your media files to Documents or Downloads folder
             return null;
           }
         }
@@ -240,7 +240,7 @@ class ExportService {
       }
       
     } catch (e) {
-      print('Error processing media file $mediaUrl: $e');
+      // Error processing media file $mediaUrl: $e
     }
     
     return null;
@@ -263,7 +263,7 @@ class ExportService {
       }
       
     } catch (e) {
-      print('Error copying media file $mediaUrl: $e');
+      // Error copying media file $mediaUrl: $e
     }
     
     return null;

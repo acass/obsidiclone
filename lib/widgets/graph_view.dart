@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
@@ -170,11 +171,11 @@ class GraphPainter extends CustomPainter {
 
     for (int i = 0; i < notes.length; i++) {
       final note = notes[i];
-      final angle = (i * 2 * 3.14159) / notes.length;
+      final angle = (i * 2 * pi) / notes.length;
       final radius = 100 * zoom;
       
-      final x = centerX + panOffset.dx + radius * (i == 0 ? 0 : (i == 1 ? 0.5 : -0.5));
-      final y = centerY + panOffset.dy + radius * (i == 0 ? -0.5 : (i == 1 ? 0.3 : 0.3));
+      final x = centerX + panOffset.dx + radius * cos(angle);
+      final y = centerY + panOffset.dy + radius * sin(angle);
 
       canvas.drawCircle(
         Offset(x, y),

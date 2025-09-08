@@ -16,7 +16,7 @@ class WelcomeScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
               ),
             ),
             const SizedBox(height: 16),
@@ -24,7 +24,7 @@ class WelcomeScreen extends StatelessWidget {
               'Select a note from the sidebar or create a new one to get started.',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),
