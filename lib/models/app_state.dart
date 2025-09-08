@@ -13,8 +13,14 @@ enum AppView {
 }
 
 class AppState extends ChangeNotifier {
-  final NotesStorage _notesStorage = NotesStorage();
-  final SettingsStorage _settingsStorage = SettingsStorage();
+  late final NotesStorage _notesStorage;
+  late final SettingsStorage _settingsStorage;
+
+  AppState({NotesStorage? notesStorage, SettingsStorage? settingsStorage}) {
+    _notesStorage = notesStorage ?? NotesStorage();
+    _settingsStorage = settingsStorage ?? SettingsStorage();
+  }
+
   List<Note> _notes = [];
   Note? _selectedNote;
   AppView _currentView = AppView.editor;
@@ -88,7 +94,7 @@ class AppState extends ChangeNotifier {
           jsonDecode(content);
         }
         
-        note.updateContent(content);
+        note.updateContent(content, modifiedAt: DateTime.now());
         if (_appSettings.autoSave) {
           _debouncedSave(note);
         }
@@ -101,7 +107,7 @@ class AppState extends ChangeNotifier {
 
   void updateNoteTitle(String noteId, String title) {
     final note = _notes.firstWhere((n) => n.id == noteId);
-    note.updateTitle(title);
+    note.updateTitle(title, modifiedAt: DateTime.now());
     _saveNote(note);
     notifyListeners();
   }

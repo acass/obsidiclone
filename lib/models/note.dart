@@ -14,14 +14,14 @@ class Note {
   }) : createdAt = createdAt ?? DateTime.now(),
        modifiedAt = modifiedAt ?? DateTime.now();
 
-  void updateContent(String newContent) {
+  void updateContent(String newContent, {DateTime? modifiedAt}) {
     content = newContent;
-    modifiedAt = DateTime.now();
+    this.modifiedAt = modifiedAt ?? DateTime.now();
   }
 
-  void updateTitle(String newTitle) {
+  void updateTitle(String newTitle, {DateTime? modifiedAt}) {
     title = newTitle;
-    modifiedAt = DateTime.now();
+    this.modifiedAt = modifiedAt ?? DateTime.now();
   }
 
   Map<String, dynamic> toJson() {
