@@ -145,7 +145,7 @@ class SettingsView extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right,
-                color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
                 size: 20,
               ),
             ],

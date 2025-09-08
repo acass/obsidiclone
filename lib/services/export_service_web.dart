@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'dart:html' as html;
+import 'dart:js_interop';
 import 'dart:typed_data';
+import 'package:web/web.dart';
 import 'package:archive/archive.dart';
 import '../models/app_state.dart';
 import '../models/note.dart';
@@ -40,16 +41,16 @@ class ExportService {
   }
 
   static void _downloadZip(Uint8List zipData, String fileName) {
-    final blob = html.Blob([zipData]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.document.createElement('a') as html.AnchorElement
+    final blob = Blob([zipData.toJS].toJS);
+    final url = URL.createObjectURL(blob);
+    final anchor = document.createElement('a') as HTMLAnchorElement
       ..href = url
       ..style.display = 'none'
       ..download = fileName;
-    html.document.body!.children.add(anchor);
+    document.body!.appendChild(anchor);
     anchor.click();
-    html.document.body!.children.remove(anchor);
-    html.Url.revokeObjectUrl(url);
+    document.body!.removeChild(anchor);
+    URL.revokeObjectURL(url);
   }
 
   static List<String> _extractMediaFromDelta(String content) {

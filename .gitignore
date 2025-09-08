@@ -9,6 +9,8 @@
 .buildlog/
 .history
 .svn/
+.mcp.json
+.playwright-mcp
 .swiftpm/
 migrate_working_dir/
 

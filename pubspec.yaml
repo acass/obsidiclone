@@ -12,6 +12,7 @@ dependencies:
 
   provider: ^6.1.1
   path_provider: ^2.1.2
+  path: ^1.8.3
   markdown_widget: ^2.3.2+6
   archive: ^3.4.10
   file_picker: ^8.0.0+1
@@ -19,6 +20,7 @@ dependencies:
   flutter_quill_extensions: ^11.0.0
   flutter_localizations:
     sdk: flutter
+  web: ^1.1.0
 
 dev_dependencies:
   flutter_test:

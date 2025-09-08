@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_obsidiclone/models/app_state.dart';
 import 'package:flutter_obsidiclone/models/note.dart';
@@ -28,15 +25,6 @@ class MockNotesStorage implements NotesStorage {
     notes.removeWhere((n) => n.id == noteId);
   }
 
-  @override
-  Future<Directory> _getNotesDirectory() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<String> _getNoteFilePath(String noteId) {
-    throw UnimplementedError();
-  }
 
   @override
   Future<bool> noteExists(String noteId) async {
