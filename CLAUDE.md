@@ -6,6 +6,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Flutter Obsidian Clone - A note-taking application inspired by Obsidian, built with Flutter. The app features a multi-view interface with note editing, graph visualization, settings management, and export functionality.
 
+## Project Structure
+
+```
+lib/
+├── main.dart                          - Application entry point
+├── models/
+│   ├── app_state.dart                - Central state management
+│   ├── app_settings.dart             - Settings model
+│   └── note.dart                     - Note data model
+├── screens/
+│   └── main_screen.dart              - Primary application layout
+├── services/
+│   ├── notes_storage.dart            - Note persistence service
+│   ├── settings_storage.dart         - Settings persistence
+│   ├── export_service.dart           - Abstract export interface
+│   ├── export_service_desktop.dart   - Desktop export implementation
+│   └── export_service_web.dart       - Web export implementation
+└── widgets/
+    ├── content_area.dart             - Dynamic content container
+    ├── editor_view.dart              - Rich text editor
+    ├── graph_view.dart               - Graph visualization
+    ├── settings_view.dart            - Settings interface
+    ├── sidebar.dart                  - Notes navigation
+    ├── top_navigation_bar.dart       - App header/controls
+    └── welcome_screen.dart           - Empty state screen
+```
+
 ## Commands
 
 ### Development
@@ -88,3 +115,17 @@ Supports multiple export formats:
 - Individual notes as Markdown, HTML, or PDF
 - Bulk export as ZIP archives
 - Platform-specific implementations for web and desktop
+
+## Troubleshooting
+
+### Common Issues
+- **Flutter SDK version**: Ensure Flutter 3.8.1+ is installed
+- **Dependencies**: Run `flutter pub get` after pulling changes
+- **Build issues**: Try `flutter clean` then `flutter pub get`
+- **Web CORS issues**: Use `--web-port=8080` when running locally
+- **macOS permissions**: Ensure file access permissions are granted
+
+### Platform-Specific Notes
+- **Web**: File picker functionality limited by browser security
+- **macOS**: Requires Xcode Command Line Tools for building
+- **Export features**: PDF export may have different behavior on web vs desktop

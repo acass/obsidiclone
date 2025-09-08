@@ -12,11 +12,36 @@ class Sidebar extends StatefulWidget {
 
 class _SidebarState extends State<Sidebar> {
   final TextEditingController _noteNameController = TextEditingController();
+  final TextEditingController _titleEditController = TextEditingController();
+  String? _editingNoteId;
 
   @override
   void dispose() {
     _noteNameController.dispose();
+    _titleEditController.dispose();
     super.dispose();
+  }
+
+  void _startEditingTitle(Note note) {
+    setState(() {
+      _editingNoteId = note.id;
+      _titleEditController.text = note.title;
+    });
+  }
+
+  void _cancelEditingTitle() {
+    setState(() {
+      _editingNoteId = null;
+      _titleEditController.clear();
+    });
+  }
+
+  void _saveTitle(AppState appState, Note note) {
+    final newTitle = _titleEditController.text.trim();
+    if (newTitle.isNotEmpty && newTitle != note.title) {
+      appState.updateNoteTitle(note.id, newTitle);
+    }
+    _cancelEditingTitle();
   }
 
   void _showDeleteConfirmation(BuildContext context, AppState appState, Note note) {
@@ -24,21 +49,21 @@ class _SidebarState extends State<Sidebar> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF2a2a2a),
-          title: const Text(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          title: Text(
             'Delete Note',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).textTheme.titleLarge?.color),
           ),
           content: Text(
             'Are you sure you want to delete "${note.title}"?',
-            style: const TextStyle(color: Colors.white70),
+            style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
+              child: Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
               ),
             ),
             TextButton(
@@ -84,10 +109,10 @@ class _SidebarState extends State<Sidebar> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+          Text(
             'PLAYGROUND',
             style: TextStyle(
-              color: Colors.white70,
+              color: Theme.of(context).textTheme.bodyMedium?.color,
               fontSize: 12,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
@@ -99,13 +124,13 @@ class _SidebarState extends State<Sidebar> {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: Colors.white24,
+                color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.add,
                 size: 16,
-                color: Colors.white,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
           ),
@@ -125,16 +150,16 @@ class _SidebarState extends State<Sidebar> {
             child: Container(
               height: 36,
               decoration: BoxDecoration(
-                color: const Color(0xFF3a3a3a),
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
               ),
               child: TextField(
                 controller: _noteNameController,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                decoration: const InputDecoration(
+                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 14),
+                decoration: InputDecoration(
                   hintText: 'Note name',
-                  hintStyle: TextStyle(color: Colors.white54),
+                  hintStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   border: InputBorder.none,
                 ),
@@ -181,13 +206,13 @@ class _SidebarState extends State<Sidebar> {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: Colors.white24,
+                color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.close,
                 size: 16,
-                color: Colors.white,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
           ),
@@ -205,42 +230,92 @@ class _SidebarState extends State<Sidebar> {
         
         return GestureDetector(
           onTap: () => appState.selectNote(note),
+          onDoubleTap: () => _startEditingTitle(note),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(4),
+              border: _editingNoteId == note.id ? Border.all(color: Theme.of(context).colorScheme.primary, width: 1) : null,
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.description,
                   size: 16,
-                  color: isSelected ? Colors.white : Colors.white70,
+                  color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    note.title,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.white70,
-                      fontSize: 14,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: _editingNoteId == note.id
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 28,
+                              child: TextField(
+                                controller: _titleEditController,
+                                style: TextStyle(
+                                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                                  fontSize: 14,
+                                ),
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                  isDense: true,
+                                ),
+                                onSubmitted: (_) => _saveTitle(appState, note),
+                                autofocus: true,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () => _saveTitle(appState, note),
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              child: Icon(
+                                Icons.check,
+                                size: 14,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _cancelEditingTitle,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              child: Icon(
+                                Icons.close,
+                                size: 14,
+                                color: Theme.of(context).textTheme.bodyMedium?.color,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Text(
+                        note.title,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                          fontSize: 14,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                 ),
-                GestureDetector(
-                  onTap: () => _showDeleteConfirmation(context, appState, note),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    child: Icon(
-                      Icons.delete_outline,
-                      size: 16,
-                      color: isSelected ? Colors.white70 : Colors.white54,
+                if (_editingNoteId != note.id)
+                  GestureDetector(
+                    onTap: () => _showDeleteConfirmation(context, appState, note),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.delete_outline,
+                        size: 16,
+                        color: isSelected ? Colors.white70 : Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),

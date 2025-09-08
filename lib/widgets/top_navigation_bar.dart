@@ -76,13 +76,13 @@ class TopNavigationBar extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: isActive ? Colors.white : Colors.white70,
+              color: isActive ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color,
             ),
             const SizedBox(width: 8),
             Text(
               title,
               style: TextStyle(
-                color: isActive ? Colors.white : Colors.white70,
+                color: isActive ? Colors.white : Theme.of(context).textTheme.bodyMedium?.color,
                 fontSize: 14,
               ),
             ),

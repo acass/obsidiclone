@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'note.dart';
 import 'app_settings.dart';
@@ -45,9 +46,17 @@ class AppState extends ChangeNotifier {
   }
 
   void selectNote(Note? note) {
-    // Save the currently selected note before switching (async, no state change)
+    // Don't switch if it's the same note
+    if (_selectedNote?.id == note?.id) {
+      return;
+    }
+    
+    // Save the currently selected note before switching
     if (_selectedNote != null) {
+      // Cancel any pending debounced saves
       _saveTimer?.cancel();
+      
+      // Force immediate save to prevent race conditions
       _saveNote(_selectedNote!);
     }
     
@@ -61,12 +70,33 @@ class AppState extends ChangeNotifier {
   }
 
   void updateNoteContent(String noteId, String content) {
-    final note = _notes.firstWhere((n) => n.id == noteId);
-    note.updateContent(content);
-    if (_appSettings.autoSave) {
-      _debouncedSave(note);
+    // Find the note and verify it exists
+    final noteIndex = _notes.indexWhere((n) => n.id == noteId);
+    if (noteIndex == -1) {
+      if (kDebugMode) print('Warning: Attempted to update non-existent note: $noteId');
+      return;
     }
-    notifyListeners();
+    
+    final note = _notes[noteIndex];
+    
+    // Only update if content has actually changed and content is valid
+    if (note.content != content && content.isNotEmpty) {
+      try {
+        // Validate that content is valid JSON (since we're storing Delta JSON)
+        if (content.startsWith('[') && content.endsWith(']')) {
+          // Try to parse as JSON to validate
+          jsonDecode(content);
+        }
+        
+        note.updateContent(content);
+        if (_appSettings.autoSave) {
+          _debouncedSave(note);
+        }
+        notifyListeners();
+      } catch (e) {
+        if (kDebugMode) print('Invalid content format for note $noteId: $e');
+      }
+    }
   }
 
   void updateNoteTitle(String noteId, String title) {

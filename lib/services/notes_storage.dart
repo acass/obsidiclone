@@ -49,11 +49,50 @@ class NotesStorage {
       for (final file in noteFiles) {
         try {
           final jsonString = await file.readAsString();
-          final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
+          
+          // Skip empty files
+          if (jsonString.trim().isEmpty) {
+            if (kDebugMode) print('Skipping empty file: ${file.path}');
+            await file.delete(); // Clean up empty files
+            continue;
+          }
+          
+          // Validate JSON format
+          dynamic jsonData;
+          try {
+            jsonData = jsonDecode(jsonString);
+          } catch (e) {
+            if (kDebugMode) print('Invalid JSON in ${file.path}, deleting: $e');
+            await file.delete(); // Clean up malformed files
+            continue;
+          }
+          
+          if (jsonData is! Map<String, dynamic>) {
+            if (kDebugMode) print('JSON is not a map in ${file.path}, deleting');
+            await file.delete(); // Clean up non-map JSON
+            continue;
+          }
+          
+          final jsonMap = jsonData;
+          
+          // Validate required fields
+          if (!jsonMap.containsKey('id') || !jsonMap.containsKey('title')) {
+            if (kDebugMode) print('Missing required fields in ${file.path}, deleting');
+            await file.delete(); // Clean up incomplete notes
+            continue;
+          }
+          
           final note = Note.fromJson(jsonMap);
           notes.add(note);
         } catch (e) {
           if (kDebugMode) print('Error loading note from ${file.path}: $e');
+          // Try to delete the problematic file
+          try {
+            await file.delete();
+            if (kDebugMode) print('Deleted problematic file: ${file.path}');
+          } catch (deleteError) {
+            if (kDebugMode) print('Failed to delete problematic file ${file.path}: $deleteError');
+          }
         }
       }
 

@@ -71,39 +71,50 @@ class _EditorViewState extends State<EditorView> {
     context.read<AppState>().updateNoteContent(widget.note.id, jsonEncode(deltaJson));
   }
 
-  void _saveCurrentContent(String noteId) {
-    final delta = _controller.document.toDelta();
-    final deltaJson = delta.toJson();
-    // Update the note content directly without triggering state change
-    final appState = context.read<AppState>();
-    final note = appState.notes.firstWhere((n) => n.id == noteId);
-    note.updateContent(jsonEncode(deltaJson));
-    // Save to storage asynchronously without state notification
-    appState.saveNoteDirectly(note);
-  }
 
   @override
   void didUpdateWidget(EditorView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.note.id != widget.note.id) {
-      // Save the old note content after the current build completes
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _saveCurrentContent(oldWidget.note.id);
-      });
+      // Save the current note's content before switching
+      _saveCurrentContent(oldWidget.note.id);
+      
+      // Remove listener and dispose controller
       _controller.removeListener(_onContentChanged);
       _controller.dispose();
+      
+      // Initialize controller for the new note
       _initializeController();
+    }
+  }
+
+  void _saveCurrentContent(String noteId) {
+    try {
+      final delta = _controller.document.toDelta();
+      final deltaJson = delta.toJson();
+      final content = jsonEncode(deltaJson);
+      
+      final appState = context.read<AppState>();
+      // Find the note safely
+      final noteIndex = appState.notes.indexWhere((n) => n.id == noteId);
+      if (noteIndex != -1) {
+        final note = appState.notes[noteIndex];
+        // Only update if content has changed
+        if (note.content != content) {
+          note.updateContent(content);
+          appState.saveNoteDirectly(note);
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) print('Error saving current content for note $noteId: $e');
     }
   }
 
   @override
   void dispose() {
     // Force save current content before disposing
-    try {
-      _saveCurrentContent(widget.note.id);
-    } catch (e) {
-      // Ignore errors during disposal
-    }
+    _saveCurrentContent(widget.note.id);
+    
     _controller.removeListener(_onContentChanged);
     _controller.dispose();
     _focusNode.dispose();
@@ -136,65 +147,58 @@ class _EditorViewState extends State<EditorView> {
               children: [
                 Text(
                   widget.note.title,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).textTheme.titleLarge?.color),
                 ),
                 const SizedBox(width: 8),
                 GestureDetector(
                   onTap: () {
                     context.read<AppState>().clearSelectedNote();
                   },
-                  child: const Icon(
+                  child: Icon(
                     Icons.close,
                     size: 16,
-                    color: Colors.white70,
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                   ),
                 ),
               ],
             ),
           ),
           const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                Icon(Icons.edit, size: 16, color: Colors.white70),
-                const SizedBox(width: 4),
-                Text(
-                  '${widget.note.title}.md',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildToolbar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Theme(
         data: Theme.of(context).copyWith(
           iconTheme: IconThemeData(
-            color: Colors.white70,
+            color: isDark ? Colors.white70 : Colors.black54,
             size: 18,
           ),
           tooltipTheme: TooltipThemeData(
             decoration: BoxDecoration(
-              color: const Color(0xFF404040),
+              color: isDark ? const Color(0xFF404040) : const Color(0xFFe0e0e0),
               borderRadius: BorderRadius.circular(4),
             ),
-            textStyle: const TextStyle(color: Colors.white),
+            textStyle: TextStyle(
+              color: isDark ? Colors.white : Colors.black87,
+            ),
           ),
           popupMenuTheme: PopupMenuThemeData(
-            color: const Color(0xFF2a2a2a),
-            textStyle: const TextStyle(color: Colors.white),
+            color: isDark ? const Color(0xFF2a2a2a) : const Color(0xFFffffff),
+            textStyle: TextStyle(
+              color: isDark ? Colors.white : Colors.black87,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          dividerColor: const Color(0xFF404040),
+          dividerColor: isDark ? const Color(0xFF404040) : const Color(0xFFe0e0e0),
         ),
         child: QuillSimpleToolbar(
           controller: _controller,
@@ -214,16 +218,19 @@ class _EditorViewState extends State<EditorView> {
             showClearFormat: true,
             showAlignmentButtons: false,
             showHeaderStyle: true,
-            showListNumbers: true,
+            showListNumbers: false,
             showListBullets: true,
-            showListCheck: true,
+            showListCheck: false,
             showCodeBlock: false,
-            showIndent: true,
+            showIndent: false,
             showLink: true,
             showUndo: true,
             showRedo: true,
             showDirection: false,
             showSearchButton: false,
+            showSubscript: false,
+            showSuperscript: false,
+            showQuote: false,
             embedButtons: FlutterQuillEmbeds.toolbarButtons(),
           ),
         ),
@@ -245,19 +252,32 @@ class _EditorViewState extends State<EditorView> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.white,
+                  color: Theme.of(context).textTheme.titleLarge?.color,
                 ),
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: QuillEditor.basic(
-                  controller: _controller,
-                  config: QuillEditorConfig(
-                    placeholder: 'Start typing...',
-                    padding: EdgeInsets.zero,
-                    autoFocus: false,
-                    expands: true,
-                    embedBuilders: kIsWeb ? FlutterQuillEmbeds.editorWebBuilders() : FlutterQuillEmbeds.editorBuilders(),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    textTheme: Theme.of(context).textTheme.copyWith(
+                      bodyMedium: TextStyle(
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                        fontSize: appState.appSettings.fontSize,
+                      ),
+                    ),
+                  ),
+                  child: Focus(
+                    focusNode: _focusNode,
+                    child: QuillEditor.basic(
+                      controller: _controller,
+                      config: QuillEditorConfig(
+                        placeholder: 'Start typing...',
+                        padding: EdgeInsets.zero,
+                        autoFocus: false,
+                        expands: true,
+                        embedBuilders: kIsWeb ? FlutterQuillEmbeds.editorWebBuilders() : FlutterQuillEmbeds.editorBuilders(),
+                      ),
+                    ),
                   ),
                 ),
               ),

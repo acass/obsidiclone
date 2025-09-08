@@ -42,8 +42,8 @@ class ObsidiCloneApp extends StatelessWidget {
               ? ThemeData.dark().copyWith(
                   scaffoldBackgroundColor: const Color(0xFF1a1a1a),
                   colorScheme: const ColorScheme.dark(
-                    primary: Colors.purpleAccent,
-                    secondary: Colors.purpleAccent,
+                    primary: Color.fromARGB(255, 228, 42, 42),
+                    secondary: Color.fromARGB(255, 223, 84, 84),
                     surface: Color(0xFF2a2a2a),
                   ),
                   cardColor: const Color(0xFF2a2a2a),
@@ -58,8 +58,8 @@ class ObsidiCloneApp extends StatelessWidget {
               : ThemeData.light().copyWith(
                   scaffoldBackgroundColor: const Color(0xFFf5f5f5),
                   colorScheme: const ColorScheme.light(
-                    primary: Colors.purpleAccent,
-                    secondary: Colors.purpleAccent,
+                    primary: Color(0xFFd32f2f),
+                    secondary: Color(0xFFd32f2f),
                     surface: Color(0xFFffffff),
                   ),
                   cardColor: const Color(0xFFffffff),
