@@ -35,21 +35,24 @@ class WelcomeScreen extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     'Debug Info:',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Loaded 3 files successfully',
-                    style: TextStyle(
-                      color: Colors.white70,
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Loaded 3 files successfully',
+                      style: TextStyle(
+                        color: Colors.white70,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
