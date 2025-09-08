@@ -24,8 +24,8 @@ A powerful note-taking application inspired by Obsidian, built with Flutter. Fea
 
 ### Prerequisites
 
-- Flutter 3.0+
-- Dart 3.0+
+- Flutter SDK: `^3.8.1` or higher is recommended.
+- Dart SDK: `^3.8.1` or higher is recommended.
 
 ### Installation
 
@@ -67,37 +67,53 @@ flutter build macos  # Build for macOS
 ```bash
 flutter analyze      # Static analysis
 flutter test         # Run tests
+flutter test --coverage # Run tests with coverage
 flutter pub get      # Install dependencies
 flutter pub upgrade  # Upgrade dependencies
 ```
 
+## Project Structure
+
+The project is organized into the following main directories:
+
+- `lib/`: Contains the main source code of the application.
+  - `main.dart`: The entry point of the application.
+  - `models/`: Contains the data models for the app, like `Note`, `AppSettings`, and `AppState`.
+  - `services/`: Contains services for things like storage (`notes_storage.dart`, `settings_storage.dart`) and exporting (`export_service.dart`).
+  - `screens/`: Contains the main screens of the application.
+  - `widgets/`: Contains the reusable UI widgets.
+- `test/`: Contains all the tests for the application.
+- `web/`: Contains the web-specific files.
+- `macos/`: Contains the macOS-specific files.
+
 ## Architecture
 
 ### State Management
-- **Provider Pattern**: Centralized state management with `ChangeNotifier`
-- **AppState**: Main application state managing notes, views, and navigation
-- **AppSettings**: Persistent settings with JSON serialization
+- **Provider Pattern**: Centralized state management with `ChangeNotifier`.
+- **AppState**: Main application state managing notes, views, and navigation.
+- **AppSettings**: Persistent settings with JSON serialization.
+- **Dependency Injection**: The `AppState` class is designed to allow for dependency injection of storage services, which makes it easier to test.
 
 ### Core Components
 
 #### Models
-- `Note`: Note data model with metadata (ID, title, content, timestamps)
-- `AppSettings`: Application configuration and preferences
+- `Note`: Note data model with metadata (ID, title, content, timestamps).
+- `AppSettings`: Application configuration and preferences.
 
 #### Services
-- `NotesStorage`: File-based note persistence using JSON
-- `SettingsStorage`: Settings persistence
-- `ExportService`: Abstract export interface with platform-specific implementations
+- `NotesStorage`: File-based note persistence using JSON.
+- `SettingsStorage`: Settings persistence.
+- `ExportService`: Abstract export interface with platform-specific implementations.
 
 #### UI Structure
-- `MainScreen`: Primary application layout
-- `TopNavigationBar`: App controls and view switching
-- `Sidebar`: Notes list and navigation (280px fixed)
-- `ContentArea`: Dynamic content based on current view
-- `EditorView`: Rich text editing with Flutter Quill
-- `GraphView`: Interactive graph visualization
-- `SettingsView`: Application preferences
-- `WelcomeScreen`: Empty state when no note is selected
+- `MainScreen`: Primary application layout.
+- `TopNavigationBar`: App controls and view switching.
+- `Sidebar`: Notes list and navigation (280px fixed).
+- `ContentArea`: Dynamic content based on current view.
+- `EditorView`: Rich text editing with Flutter Quill.
+- `GraphView`: Interactive graph visualization.
+- `SettingsView`: Application preferences.
+- `WelcomeScreen`: Empty state when no note is selected.
 
 ### Theming
 
